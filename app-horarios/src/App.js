@@ -3,9 +3,12 @@ import Navbar from "./Navbar";
 
 function App() {
   return (
-    <div className="bg-gray-100 min-h-screen p-6">
+    <div>
       <Navbar />
-     
+      <div className="container mt-4">
+        <h1>Bem-vindo ao HClass</h1>
+        <p>Conteúdo principal vai aqui...</p>
+      </div>
     </div>
   );
 }
