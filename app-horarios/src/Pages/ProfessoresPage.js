@@ -7,7 +7,7 @@ import GradeHorario from "../Components/GradeHorario";
 function ProfessoresPage() {
   return (
     <div className="container">
-      <h2 className="mb-4">Consulta e Planeamento de Horários</h2>
+      <h2 className="mb-4 pt-3">Consulta e Planeamento de Horários</h2>
 
       {/* Formulário de pesquisa */}
       <PesquisaForm tipo="Horários" />
