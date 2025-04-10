@@ -1,5 +1,6 @@
+// GradeHorario.js
 import React from "react";
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import { Droppable, Draggable } from "@hello-pangea/dnd";
 
 const diasSemana = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
 const horas = Array.from({ length: 28 }, (_, i) => {
@@ -9,49 +10,37 @@ const horas = Array.from({ length: 28 }, (_, i) => {
 });
 
 function GradeHorario({ blocos = [] }) {
-  const [itens, setItens] = React.useState(blocos);
-
-  const onDragEnd = (result) => {
-    if (!result.destination) return;
-
-    const reordered = Array.from(itens);
-    const [removido] = reordered.splice(result.source.index, 1);
-    reordered.splice(result.destination.index, 0, removido);
-    setItens(reordered);
-  };
-
   return (
     <div className="table-responsive mt-4">
-      <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable droppableId="grade">
-          {(provided) => (
-            <table
-              className="table table-bordered text-center align-middle table-sm"
-              ref={provided.innerRef}
-              {...provided.droppableProps}
-            >
-              <thead className="table-light">
-                <tr>
-                  <th>Hora</th>
-                  {diasSemana.map((dia) => (
-                    <th key={dia}>{dia}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {horas.map((hora) => (
-                  <tr key={hora}>
-                    <td className="fw-bold">{hora}</td>
-                    {diasSemana.map((dia) => {
-                      const bloco = itens.find(
-                        (b) => b.dia === dia && b.hora === hora
-                      );
-                      return (
-                        <td key={dia + hora} className="p-1">
-                          {bloco ? (
+      <table className="table table-bordered text-center align-middle table-sm">
+        <thead className="table-light">
+          <tr>
+            <th>Hora</th>
+            {diasSemana.map((dia) => (
+              <th key={dia}>{dia}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {horas.map((hora) => (
+            <tr key={hora}>
+              <td className="fw-bold">{hora}</td>
+              {diasSemana.map((dia) => {
+                const bloco = blocos.find((b) => b.dia === dia && b.hora === hora);
+                const cellId = `cell-${dia}-${hora}`;
+                return (
+                  <td key={dia + hora} className="p-1">
+                    <Droppable droppableId={cellId}>
+                      {(provided) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.droppableProps}
+                          style={{ minHeight: "50px" }}
+                        >
+                          {bloco && (
                             <Draggable
-                              draggableId={`${bloco.dia}-${bloco.hora}`}
-                              index={itens.indexOf(bloco)}
+                              draggableId={`${bloco.id}`}
+                              index={0}
                             >
                               {(provided) => (
                                 <div
@@ -67,20 +56,18 @@ function GradeHorario({ blocos = [] }) {
                                 </div>
                               )}
                             </Draggable>
-                          ) : (
-                            <span></span>
                           )}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-                {provided.placeholder}
-              </tbody>
-            </table>
-          )}
-        </Droppable>
-      </DragDropContext>
+                          {provided.placeholder}
+                        </div>
+                      )}
+                    </Droppable>
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
