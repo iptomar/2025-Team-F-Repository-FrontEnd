@@ -16,17 +16,29 @@ function TurmasPage() {
   const handleDragEnd = (result) => {
     const { source, destination, draggableId } = result;
     if (!destination) return;
-
-    // If dropping into a GradeHorario cell
-    if (destination.droppableId.startsWith("cell-")) {
+  
+    const isFromGrid = source.droppableId.startsWith("cell-");
+    const isToGrid = destination.droppableId.startsWith("cell-");
+  
+    // Move from GradeBlocos -> GradeHorario
+    if (!isFromGrid && isToGrid) {
       const [_, dia, hora] = destination.droppableId.split("-");
-
       const bloco = listaBlocos.find((b) => b.id === draggableId);
       if (!bloco) return;
-
-      // Add to grid, remove from blocos list
+  
       setGradeBlocos((prev) => [...prev, { ...bloco, dia, hora }]);
       setListaBlocos((prev) => prev.filter((b) => b.id !== draggableId));
+    }
+  
+    // Move from GradeHorario -> GradeBlocos
+    else if (isFromGrid && !isToGrid && destination.droppableId === "blocos-list") {
+      const bloco = gradeBlocos.find((b) => b.id === draggableId);
+      if (!bloco) return;
+  
+      // Remove from grid
+      setGradeBlocos((prev) => prev.filter((b) => b.id !== draggableId));
+      // Add back to blocos
+      setListaBlocos((prev) => [...prev, { ...bloco }]);
     }
   };
 
