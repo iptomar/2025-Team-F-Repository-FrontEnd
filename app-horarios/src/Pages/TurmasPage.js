@@ -1,4 +1,3 @@
-// TurmasPage.js
 import React, { useState } from "react";
 import { DragDropContext } from "@hello-pangea/dnd";
 import GradeHorario from "../Components/GradeHorario";
@@ -12,6 +11,7 @@ function TurmasPage() {
     { id: "2", disciplina: "IOT", professor: "Maria Fernandes", sala: "B2", horas: 3 },
     { id: "3", disciplina: "SInf", professor: "Carlos Mendes", sala: "C1", horas: 2 },
   ]);
+  const [semanaAtual, setSemanaAtual] = useState(1); // ALTERAÇÃO
 
   const handleDragEnd = (result) => {
     const { source, destination, draggableId } = result;
@@ -42,6 +42,10 @@ function TurmasPage() {
     }
   };
 
+  const proximaSemana = () => setSemanaAtual((prev) => prev + 1); // ALTERAÇÃO
+  const semanaAnterior = () =>
+    setSemanaAtual((prev) => (prev > 1 ? prev - 1 : 1)); // impede ir abaixo da semana 1 // ALTERAÇÃO
+
   return (
     <>
       <div className="container pt-3">
@@ -53,7 +57,21 @@ function TurmasPage() {
         <DragDropContext onDragEnd={handleDragEnd}>
           <div className="row">
             <div className="col-md-9">
-              <h2 className="mb-4 pt-3">Horário Turma</h2>
+            <div className="mb-4 pt-3 d-flex justify-content-between align-items-center">
+              <div>
+                  <h2 className="mb-0">Horário Turma</h2>
+                  <small className="text-muted">Semana {semanaAtual}</small>
+                </div>
+                <div className="d-flex">
+                  <button className="btn btn-outline-secondary btn-sm me-2" onClick={semanaAnterior}>
+                    ← Semana Anterior
+                  </button>
+                  <button className="btn btn-outline-secondary btn-sm" onClick={proximaSemana}>
+                    Próxima semana →
+                  </button>
+                </div>
+              </div>
+              
               <div className="p-3 border">
                 <GradeHorario blocos={gradeBlocos} />
               </div>
