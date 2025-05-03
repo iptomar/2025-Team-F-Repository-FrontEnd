@@ -4,7 +4,7 @@ function Navbar() {
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
       <div className="container-fluid">
-        <a className="navbar-brand" href="/horarios">HClass</a>
+        <a className="navbar-brand fw-bold" href="/horarios">HClass</a>
         <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
           <span className="navbar-toggler-icon"></span>
         </button>
@@ -24,7 +24,7 @@ function Navbar() {
               <a className="nav-link" href="/professores">Professores</a>
             </li>
           </ul>
-          <button className="btn btn-outline-light">Entrar</button>
+          <button className="btn btn-outline-light" >Entrar</button>
         </div>
       </div>
     </nav>
