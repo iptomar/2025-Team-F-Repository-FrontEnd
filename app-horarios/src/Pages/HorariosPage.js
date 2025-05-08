@@ -1,6 +1,5 @@
 import React from "react";
 import GradeHorario from "../Components/GradeHorario";
-import GradeBlocos from "../Components/GradeBlocos";
 
 
 function HorariosPage() {
