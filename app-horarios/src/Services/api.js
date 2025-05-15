@@ -17,9 +17,19 @@ export const fetchCursos = async () => {
 
 export const fetchBlocos = async (cursoId, ano, semestre) => {
   try {
-    const res = await fetch(`${baseUrl}/api/BlocoHorarioAPI/por-curso/${cursoId}/ano/${ano}/semestre/${semestre}`);
-    if (!res.ok) throw new Error("Erro ao buscar blocos");
-    return await res.json();
+    const url = `${baseUrl}/api/BlocoHorarioAPI/por-curso/${cursoId}/ano/${ano}/semestre/${semestre}`;
+    console.log("🔍 Requisição para:", url);
+
+    const res = await fetch(url);
+    const text = await res.text(); // lê como texto bruto primeiro
+
+    try {
+      return JSON.parse(text); // tenta converter para JSON
+    } catch (e) {
+      console.error("❌ Resposta não é JSON:", text);
+      throw e;
+    }
+
   } catch (err) {
     console.error("Erro ao buscar blocos:", err);
     return [];
