@@ -1,6 +1,6 @@
-// GradeBlocos.js
 import React from "react";
 import { Droppable, Draggable } from "@hello-pangea/dnd";
+import "../styles/GradeBlocos.css"; 
 
 function GradeBlocos({ blocos }) {
   return (
@@ -11,22 +11,22 @@ function GradeBlocos({ blocos }) {
             <Draggable key={bloco.id} draggableId={bloco.id} index={index}>
               {(provided) => (
                 <div
+                  className="bloco-horario"
                   ref={provided.innerRef}
                   {...provided.draggableProps}
                   {...provided.dragHandleProps}
                   style={{
                     ...provided.draggableProps.style,
-                    padding: "12px",
-                    marginBottom: "10px",
-                    border: "1px solid #ccc",
-                    borderRadius: "8px",
-                    backgroundColor: "#f8f9fa",
-                    cursor: "grab",
                   }}
                 >
-                  <h4>{bloco.disciplina}</h4>
-                  <p><strong>Professor:</strong> {bloco.professor}</p>
-                  <p><strong>Sala:</strong> {bloco.sala}</p>
+                  <div className="cabecalho-disciplina">
+                    <strong>{bloco.disciplina}</strong>
+                    <div className="tipo-aula">({bloco.tipoAula})</div>
+                  </div>
+                  <div className="detalhes">
+                    {bloco.professor}<br />
+                    {bloco.sala}
+                  </div>
                 </div>
               )}
             </Draggable>

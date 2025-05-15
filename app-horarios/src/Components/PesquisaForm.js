@@ -6,7 +6,7 @@ import {
   // fetchTurmas, fetchSalas (se for usar depois)
 } from '../Services/api';
 
-function PesquisaForm({ tipo }) {
+function PesquisaForm({ tipo, onPesquisar }) {
   const [localizacao, setLocalizacao] = useState("");
   const [escola, setEscola] = useState("");
   const [curso, setCurso] = useState("");
@@ -48,10 +48,17 @@ function PesquisaForm({ tipo }) {
   const escolaSelecionada = escolas.find(e => e.id === parseInt(escola));
   const cursosFiltrados = escolaSelecionada?.cursos || [];
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (curso && semestre) {
+      onPesquisar({ cursoId: parseInt(curso), semestre: parseInt(semestre) });
+    }
+  };
+
   return (
     <div className="card p-4 shadow-sm border">
       <h5 className="mb-3">Filtrar {tipo}</h5>
-      <form className="row g-3">
+      <form className="row g-3" onSubmit={handleSubmit}>
         {/* Localização */}
         <div className="col-md-4">
           <label className="form-label">Localização</label>
