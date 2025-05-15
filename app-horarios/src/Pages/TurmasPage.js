@@ -44,17 +44,19 @@ function TurmasPage() {
   const semanaAnterior = () =>
     setSemanaAtual((prev) => (prev > 1 ? prev - 1 : 1)); // impede ir abaixo da semana 1 // ALTERAÇÃO
 
-  useEffect(() => {
-    async function carregarBlocos() {
-      const cursoId = 1;     // Podes obter do form se já estiver implementado
-      const ano = 1;    // Idem
-      const semestre = 1;
-      const blocosApi = await fetchBlocos(cursoId, ano, semestre);
-      setListaBlocos(blocosApi);
-    }
+  // Remover isso se o carregamento inicial não for obrigatório:
+useEffect(() => {
+  async function carregarBlocos() {
+    const cursoId = 1;
+    const ano = 1;
+    const semestre = 1;
+    const blocosApi = await fetchBlocos(cursoId, ano, semestre);
+    setListaBlocos(blocosApi);
+  }
 
-    carregarBlocos();
-  }, []);
+  carregarBlocos();
+}, []);
+
 
 
   return (

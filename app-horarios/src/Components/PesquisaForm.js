@@ -12,6 +12,7 @@ function PesquisaForm({ tipo, onPesquisar }) {
   const [curso, setCurso] = useState("");
   const [ano, setAno] = useState("");
   const [semestre, setSemestre] = useState("");
+  const [turma, setTurma] = useState("");
 
   const [localizacoes, setLocalizacoes] = useState([]);
   const [escolas, setEscolas] = useState([]);
@@ -19,6 +20,7 @@ function PesquisaForm({ tipo, onPesquisar }) {
 
   const isEscolaEnabled = localizacao !== "";
   const isCursoEnabled = escola !== "";
+  const isTurmaEnabled = curso !== "";
   const isAnoEnabled = curso !== "";
   const isSemestreEnabled = ano !== "";
 
@@ -48,12 +50,24 @@ function PesquisaForm({ tipo, onPesquisar }) {
   const escolaSelecionada = escolas.find(e => e.id === parseInt(escola));
   const cursosFiltrados = escolaSelecionada?.cursos || [];
 
+  const cursoSelecionado = cursosFiltrados.find(c => c.id === parseInt(curso));
+  const turmasFiltradas = cursoSelecionado?.turmas || [];
+
+
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (curso && semestre) {
-      onPesquisar({ cursoId: parseInt(curso), semestre: parseInt(semestre) });
+    if (curso && ano && semestre) {
+      onPesquisar({
+        cursoId: parseInt(curso),
+        ano: parseInt(ano),
+        semestre: parseInt(semestre)
+      });
+    } else {
+      console.warn("Campos obrigatórios em falta!");
     }
   };
+  
 
   return (
     <div className="card p-4 shadow-sm border">
@@ -112,6 +126,24 @@ function PesquisaForm({ tipo, onPesquisar }) {
             ))}
           </select>
         </div>
+
+        {/* Turma */}
+        <div className="col-md-4">
+          <label className="form-label">Turma</label>
+          <select
+            className="form-select"
+            value={turma}
+            onChange={(e) => setTurma(e.target.value)}
+            disabled={!isTurmaEnabled}
+          >
+            <option value="">Selecione</option>
+            {turmasFiltradas.map((t) => (
+              <option key={t.id} value={t.id}>{t.nome}</option>
+            ))}
+          </select>
+        </div>
+
+
 
         {/* Ano Académico */}
         <div className="col-md-4">
