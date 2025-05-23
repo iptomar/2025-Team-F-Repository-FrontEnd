@@ -1,4 +1,4 @@
-const baseUrl = "https://dbe7-194-210-240-106.ngrok-free.app";
+const baseUrl = "https://edab-194-210-113-124.ngrok-free.app";
 
 export const fetchLocalizacoes = async () => {
   const res = await fetch(`${baseUrl}/api/LocalizacaoAPI`);
@@ -26,7 +26,7 @@ export const fetchBlocos = async (cursoId, ano, semestre) => {
     try {
       return JSON.parse(text); // tenta converter para JSON
     } catch (e) {
-      console.error("❌ Resposta não é JSON:", text);
+      console.error("Resposta não é JSON:", text);
       throw e;
     }
 
