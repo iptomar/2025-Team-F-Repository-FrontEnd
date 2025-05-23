@@ -16,18 +16,26 @@ export const fetchCursos = async () => {
 };
 
 export const fetchBlocos = async (cursoId, ano, semestre) => {
+  const url = `${baseUrl}/api/BlocoHorarioAPI/por-curso/${cursoId}/ano/${ano}/semestre/${semestre}`;
+  console.log("🔍 Requisição para:", url);
+
   try {
-    const url = `${baseUrl}/api/BlocoHorarioAPI/por-curso/${cursoId}/ano/${ano}/semestre/${semestre}`;
-    console.log("🔍 Requisição para:", url);
-
     const res = await fetch(url);
-    const text = await res.text(); // lê como texto bruto primeiro
 
-    try {
-      return JSON.parse(text); // tenta converter para JSON
-    } catch (e) {
-      console.error("Resposta não é JSON:", text);
-      throw e;
+    if (!res.ok) {
+      console.warn(`Resposta HTTP não OK: ${res.status} ${res.statusText}`);
+      return [];
+    }
+
+    // Tenta converter direto para JSON
+    const data = await res.json();
+
+    // Garante que sempre retorna array
+    if (Array.isArray(data)) {
+      return data;
+    } else {
+      console.warn("Resposta JSON não é um array:", data);
+      return [];
     }
 
   } catch (err) {
@@ -35,3 +43,4 @@ export const fetchBlocos = async (cursoId, ano, semestre) => {
     return [];
   }
 };
+
