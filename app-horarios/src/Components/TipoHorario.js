@@ -13,7 +13,7 @@ function TipoHorario({ schedule, setSchedule }) {
             id="modular"
             value="modular"
             checked={schedule === "modular"}
-            onChange={() => setSchedule("modular")}
+            //onChange={() => setSchedule("modular")}
           />
           <label className="form-check-label" htmlFor="modular">
             Horário Modular
@@ -28,7 +28,7 @@ function TipoHorario({ schedule, setSchedule }) {
             id="semestral"
             value="semestral"
             checked={schedule === "semestral"}
-            onChange={() => setSchedule("semestral")}
+            //onChange={() => setSchedule("semestral")}
           />
           <label className="form-check-label" htmlFor="semestral">
             Horário Semestral

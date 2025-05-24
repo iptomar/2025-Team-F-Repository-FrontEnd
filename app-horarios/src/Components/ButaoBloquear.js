@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 
-function BotaoBloquear() {
-  const [isBlocked, setIsBlocked] = useState(false);
-
+function BotaoBloquear({ isBlocked, setIsBlocked }) {
   const handleClick = () => {
-    setIsBlocked(prev => !prev);
+    setIsBlocked((prev) => !prev);
   };
 
   return (
@@ -19,5 +17,6 @@ function BotaoBloquear() {
     </div>
   );
 }
+
 
 export default BotaoBloquear;

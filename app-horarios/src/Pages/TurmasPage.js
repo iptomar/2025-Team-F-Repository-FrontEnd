@@ -5,22 +5,27 @@
   import GradeBlocos from "../Components/GradeBlocos";
   import BotaoBloquear from "../Components/ButaoBloquear";
   import SeletorHorario from "../Components/TipoHorario";
+  import BotaoGuardar from "../Components/BotaoGuardar";
   import { fetchBlocos } from '../Services/api';
 
   function TurmasPage() {
     const [gradeBlocos, setGradeBlocos] = useState([]);
     const [listaBlocos, setListaBlocos] = useState([]);
 
+    const [isBlocked, setIsBlocked] = useState(false);
+
+
     const [semanaAtual, setSemanaAtual] = useState(1); // ALTERAÇÃO
 
     const handleDragEnd = (result) => {
+      if (isBlocked) return; // Prevent drag if blocked
+
       const { source, destination, draggableId } = result;
       if (!destination) return;
 
       const isFromGrid = source.droppableId.startsWith("cell-");
       const isToGrid = destination.droppableId.startsWith("cell-");
 
-      // Move from GradeBlocos -> GradeHorario
       if (!isFromGrid && isToGrid) {
         const [_, dia, hora] = destination.droppableId.split("-");
         const bloco = listaBlocos.find((b) => b.id === draggableId);
@@ -28,16 +33,11 @@
 
         setGradeBlocos((prev) => [...prev, { ...bloco, dia, hora }]);
         setListaBlocos((prev) => prev.filter((b) => b.id !== draggableId));
-      }
-
-      // Move from GradeHorario -> GradeBlocos
-      else if (isFromGrid && !isToGrid && destination.droppableId === "blocos-list") {
+      } else if (isFromGrid && !isToGrid && destination.droppableId === "blocos-list") {
         const bloco = gradeBlocos.find((b) => b.id === draggableId);
         if (!bloco) return;
 
-        // Remove from grid
         setGradeBlocos((prev) => prev.filter((b) => b.id !== draggableId));
-        // Add back to blocos
         setListaBlocos((prev) => [...prev, { ...bloco }]);
       }
     };
@@ -109,7 +109,9 @@
                 </div>
               </div>
 
-              <BotaoBloquear/>
+              <BotaoGuardar isBlocked={isBlocked} />
+              
+              <BotaoBloquear isBlocked={isBlocked} setIsBlocked={setIsBlocked} />
 
             </div>
           </DragDropContext>
