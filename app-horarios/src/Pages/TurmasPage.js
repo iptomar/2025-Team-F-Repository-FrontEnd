@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { DragDropContext } from "@hello-pangea/dnd";
 import GradeHorario from "../Components/GradeHorario";
 import PesquisaForm from "../Components/PesquisaForm";
@@ -8,8 +8,7 @@ import { fetchBlocos } from '../Services/api';
 function TurmasPage() {
   const [gradeBlocos, setGradeBlocos] = useState([]);
   const [listaBlocos, setListaBlocos] = useState([]);
-
-  const [semanaAtual, setSemanaAtual] = useState(1); // ALTERAÇÃO
+  const [semanaAtual, setSemanaAtual] = useState(1);
 
   const handleDragEnd = (result) => {
     const { source, destination, draggableId } = result;
@@ -18,46 +17,30 @@ function TurmasPage() {
     const isFromGrid = source.droppableId.startsWith("cell-");
     const isToGrid = destination.droppableId.startsWith("cell-");
 
-    // Move from GradeBlocos -> GradeHorario
     if (!isFromGrid && isToGrid) {
-      const [_, dia, hora] = destination.droppableId.split("-");
-      const bloco = listaBlocos.find((b) => b.id === draggableId);
+      // Bloco movido da lista para o horário
+      const parts = destination.droppableId.split("-");
+      if (parts.length < 3) return;
+
+      const dia = parts[1];
+      const hora = parts.slice(2).join("-");
+      const bloco = listaBlocos.find((b) => String(b.id) === String(draggableId));
       if (!bloco) return;
 
       setGradeBlocos((prev) => [...prev, { ...bloco, dia, hora }]);
-      setListaBlocos((prev) => prev.filter((b) => b.id !== draggableId));
-    }
-
-    // Move from GradeHorario -> GradeBlocos
-    else if (isFromGrid && !isToGrid && destination.droppableId === "blocos-list") {
-      const bloco = gradeBlocos.find((b) => b.id === draggableId);
+      setListaBlocos((prev) => prev.filter((b) => String(b.id) !== String(draggableId)));
+    } else if (isFromGrid && !isToGrid && destination.droppableId === "blocos-list") {
+      // Bloco removido do horário e devolvido à lista
+      const bloco = gradeBlocos.find((b) => String(b.id) === String(draggableId));
       if (!bloco) return;
 
-      // Remove from grid
-      setGradeBlocos((prev) => prev.filter((b) => b.id !== draggableId));
-      // Add back to blocos
+      setGradeBlocos((prev) => prev.filter((b) => String(b.id) !== String(draggableId)));
       setListaBlocos((prev) => [...prev, { ...bloco }]);
     }
   };
 
-  const proximaSemana = () => setSemanaAtual((prev) => prev + 1); // ALTERAÇÃO
-  const semanaAnterior = () =>
-    setSemanaAtual((prev) => (prev > 1 ? prev - 1 : 1)); // impede ir abaixo da semana 1 // ALTERAÇÃO
-
-  // Remover isso se o carregamento inicial não for obrigatório:
-useEffect(() => {
-  async function carregarBlocos() {
-    const cursoId = 1;
-    const ano = 1;
-    const semestre = 1;
-    const blocosApi = await fetchBlocos(cursoId, ano, semestre);
-    setListaBlocos(blocosApi);
-  }
-
-  carregarBlocos();
-}, []);
-
-
+  const proximaSemana = () => setSemanaAtual((prev) => prev + 1);
+  const semanaAnterior = () => setSemanaAtual((prev) => (prev > 1 ? prev - 1 : 1));
 
   return (
     <>
@@ -66,10 +49,25 @@ useEffect(() => {
         <PesquisaForm
           tipo="Horários"
           onPesquisar={({ cursoId, ano, semestre }) => {
-            fetchBlocos(cursoId, ano, semestre).then(setListaBlocos);
+            setGradeBlocos([]); // limpa o horário atual
+            fetchBlocos(cursoId, ano, semestre)
+              .then((blocos) => {
+                if (Array.isArray(blocos)) {
+                  const blocosMapeados = blocos.map((b, index) => ({
+                    id: index, // gera um id temporário se a API não fornecer
+                    nomeDisciplina: b.nomeDisciplina,
+                    tipoAula: b.tipoAula,
+                    professor: Array.isArray(b.nomeProfessor) ? b.nomeProfessor.join(", ") : b.nomeProfessor,
+                    sala: b.nomeSala
+                  }));
+                  setListaBlocos(blocosMapeados);
+                }
+
+                else console.error("fetchBlocos não retornou array:", blocos);
+              })
+              .catch((err) => console.error("Erro fetchBlocos:", err));
           }}
         />
-
       </div>
 
       <div className="container">
@@ -82,10 +80,17 @@ useEffect(() => {
                   <small className="text-muted">Semana {semanaAtual}</small>
                 </div>
                 <div className="d-flex">
-                  <button className="btn btn-outline-secondary btn-sm me-2" onClick={semanaAnterior}>
+                  <button
+                    className="btn btn-outline-secondary btn-sm me-2"
+                    onClick={semanaAnterior}
+                    disabled={semanaAtual === 1}
+                  >
                     ← Semana Anterior
                   </button>
-                  <button className="btn btn-outline-secondary btn-sm" onClick={proximaSemana}>
+                  <button
+                    className="btn btn-outline-secondary btn-sm"
+                    onClick={proximaSemana}
+                  >
                     Próxima semana →
                   </button>
                 </div>
@@ -104,7 +109,7 @@ useEffect(() => {
             </div>
 
             <div className="col-2 mt-3 pb-3">
-              <button type="submit" className="btn btn-primary btn-lg">
+              <button type="button" className="btn btn-primary btn-lg" disabled>
                 Exportar Excel
               </button>
             </div>

@@ -3,7 +3,6 @@ import {
   fetchCursos,
   fetchEscolas,
   fetchLocalizacoes,
-  // fetchTurmas, fetchSalas (se for usar depois)
 } from '../Services/api';
 
 function PesquisaForm({ tipo, onPesquisar }) {
@@ -18,6 +17,7 @@ function PesquisaForm({ tipo, onPesquisar }) {
   const [escolas, setEscolas] = useState([]);
   const [cursos, setCursos] = useState([]);
 
+  // Controle de habilitação dos selects dependentes
   const isEscolaEnabled = localizacao !== "";
   const isCursoEnabled = escola !== "";
   const isTurmaEnabled = curso !== "";
@@ -25,12 +25,12 @@ function PesquisaForm({ tipo, onPesquisar }) {
   const isSemestreEnabled = ano !== "";
 
   useEffect(() => {
-    const carregarDados = async () => {
+    async function carregarDados() {
       try {
         const [locs, escs, curs] = await Promise.all([
           fetchLocalizacoes(),
           fetchEscolas(),
-          fetchCursos()
+          fetchCursos(),
         ]);
         setLocalizacoes(locs);
         setEscolas(escs);
@@ -38,41 +38,65 @@ function PesquisaForm({ tipo, onPesquisar }) {
       } catch (error) {
         console.error("Erro ao carregar dados:", error);
       }
-    };
-
+    }
     carregarDados();
   }, []);
 
+  // Filtra escolas pela localização selecionada
   const escolasFiltradas = localizacao
-    ? escolas.filter(e => e.localizacao && e.localizacao.id === parseInt(localizacao))
+    ? escolas.filter(e => e.localizacao?.id === Number(localizacao))
     : escolas;
 
-  const escolaSelecionada = escolas.find(e => e.id === parseInt(escola));
+  // Obtem a escola selecionada (objeto)
+  const escolaSelecionada = escolas.find(e => e.id === Number(escola));
   const cursosFiltrados = escolaSelecionada?.cursos || [];
 
-  const cursoSelecionado = cursosFiltrados.find(c => c.id === parseInt(curso));
+  // Obtem o curso selecionado (objeto)
+  const cursoSelecionado = cursosFiltrados.find(c => c.id === Number(curso));
   const turmasFiltradas = cursoSelecionado?.turmas || [];
-
-
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (curso && ano && semestre) {
       onPesquisar({
-        cursoId: parseInt(curso),
-        ano: parseInt(ano),
-        semestre: parseInt(semestre)
+        cursoId: Number(curso),
+        ano: Number(ano),
+        semestre: Number(semestre),
       });
     } else {
       console.warn("Campos obrigatórios em falta!");
     }
   };
-  
+
+  // Gera as opções de ano acadêmico com base no tipo do curso
+  const gerarOpcoesAno = () => {
+    if (!cursoSelecionado) return null;
+
+    let maxAnos = 1;
+    switch (cursoSelecionado.tipo?.toLowerCase()) {
+      case "licenciatura":
+        maxAnos = 3;
+        break;
+      case "mestrado":
+      case "tesp":
+        maxAnos = 2;
+        break;
+      default:
+        maxAnos = 1;
+    }
+
+    return Array.from({ length: maxAnos }, (_, i) => (
+      <option key={i + 1} value={i + 1}>
+        {i + 1}º Ano
+      </option>
+    ));
+  };
 
   return (
     <div className="card p-4 shadow-sm border">
       <h5 className="mb-3">Filtrar {tipo}</h5>
       <form className="row g-3" onSubmit={handleSubmit}>
+
         {/* Localização */}
         <div className="col-md-4">
           <label className="form-label">Localização</label>
@@ -83,10 +107,13 @@ function PesquisaForm({ tipo, onPesquisar }) {
               setLocalizacao(e.target.value);
               setEscola("");
               setCurso("");
+              setAno("");
+              setSemestre("");
+              setTurma("");
             }}
           >
             <option value="">Selecione</option>
-            {localizacoes.map((l) => (
+            {localizacoes.map(l => (
               <option key={l.id} value={l.id}>{l.nome}</option>
             ))}
           </select>
@@ -101,11 +128,14 @@ function PesquisaForm({ tipo, onPesquisar }) {
             onChange={(e) => {
               setEscola(e.target.value);
               setCurso("");
+              setAno("");
+              setSemestre("");
+              setTurma("");
             }}
             disabled={!isEscolaEnabled}
           >
             <option value="">Selecione</option>
-            {escolasFiltradas.map((e) => (
+            {escolasFiltradas.map(e => (
               <option key={e.id} value={e.id}>{e.nome}</option>
             ))}
           </select>
@@ -117,11 +147,16 @@ function PesquisaForm({ tipo, onPesquisar }) {
           <select
             className="form-select"
             value={curso}
-            onChange={(e) => setCurso(e.target.value)}
+            onChange={(e) => {
+              setCurso(e.target.value);
+              setAno("");
+              setSemestre("");
+              setTurma("");
+            }}
             disabled={!isCursoEnabled}
           >
             <option value="">Selecione</option>
-            {cursosFiltrados.map((c) => (
+            {cursosFiltrados.map(c => (
               <option key={c.id} value={c.id}>{c.nome}</option>
             ))}
           </select>
@@ -137,13 +172,11 @@ function PesquisaForm({ tipo, onPesquisar }) {
             disabled={!isTurmaEnabled}
           >
             <option value="">Selecione</option>
-            {turmasFiltradas.map((t) => (
+            {turmasFiltradas.map(t => (
               <option key={t.id} value={t.id}>{t.nome}</option>
             ))}
           </select>
         </div>
-
-
 
         {/* Ano Académico */}
         <div className="col-md-4">
@@ -155,27 +188,7 @@ function PesquisaForm({ tipo, onPesquisar }) {
             disabled={!isAnoEnabled}
           >
             <option value="">Selecione</option>
-            {(() => {
-              const cursoSelecionado = cursos.find(c => c.id === parseInt(curso));
-              if (!cursoSelecionado) return null;
-
-              let maxAnos = 1;
-              switch (cursoSelecionado.tipo?.toLowerCase()) {
-                case "licenciatura":
-                  maxAnos = 3;
-                  break;
-                case "mestrado":
-                case "tesp":
-                  maxAnos = 2;
-                  break;
-                default:
-                  maxAnos = 1;
-              }
-
-              return Array.from({ length: maxAnos }, (_, i) => (
-                <option key={i + 1} value={i + 1}>{i + 1}º Ano</option>
-              ));
-            })()}
+            {gerarOpcoesAno()}
           </select>
         </div>
 
