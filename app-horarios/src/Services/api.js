@@ -1,4 +1,4 @@
-const baseUrl = "https://edab-194-210-113-124.ngrok-free.app";
+const baseUrl = " http://localhost:5281";
 
 export const fetchLocalizacoes = async () => {
   const res = await fetch(`${baseUrl}/api/LocalizacaoAPI`);
