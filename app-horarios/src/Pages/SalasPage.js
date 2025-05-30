@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { DragDropContext } from "@hello-pangea/dnd";
 import GradeHorario from "../Components/GradeHorario";
 import PesquisaForm from "../Components/PesquisaForm";
 import GradeBlocos from "../Components/GradeBlocos";
-
+import * as XLSX from "xlsx";
 
 function SalasPage() {
   const [gradeBlocos, setGradeBlocos] = useState([]);
@@ -13,31 +13,35 @@ function SalasPage() {
     { id: "3", disciplina: "SInf", professor: "Carlos Mendes", sala: "C1", horas: 2 },
   ]);
 
+  useEffect(() => {
+    localStorage.setItem("gradeBlocos", JSON.stringify([{ type: "sala", data: gradeBlocos }]));
+  }, [gradeBlocos]);
+
+  const exportExcel = () => {
+    const ws = XLSX.utils.json_to_sheet(gradeBlocos);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "HorarioSala");
+    XLSX.writeFile(wb, "horario_sala.xlsx");
+  };
+
   const handleDragEnd = (result) => {
     const { source, destination, draggableId } = result;
     if (!destination) return;
-  
+
     const isFromGrid = source.droppableId.startsWith("cell-");
     const isToGrid = destination.droppableId.startsWith("cell-");
-  
-    // Move from GradeBlocos -> GradeHorario
+
     if (!isFromGrid && isToGrid) {
       const [_, dia, hora] = destination.droppableId.split("-");
       const bloco = listaBlocos.find((b) => b.id === draggableId);
       if (!bloco) return;
-  
+
       setGradeBlocos((prev) => [...prev, { ...bloco, dia, hora }]);
       setListaBlocos((prev) => prev.filter((b) => b.id !== draggableId));
-    }
-  
-    // Move from GradeHorario -> GradeBlocos
-    else if (isFromGrid && !isToGrid && destination.droppableId === "blocos-list") {
+    } else if (isFromGrid && !isToGrid && destination.droppableId === "blocos-list") {
       const bloco = gradeBlocos.find((b) => b.id === draggableId);
       if (!bloco) return;
-  
-      // Remove from grid
       setGradeBlocos((prev) => prev.filter((b) => b.id !== draggableId));
-      // Add back to blocos
       setListaBlocos((prev) => [...prev, { ...bloco }]);
     }
   };
@@ -67,7 +71,7 @@ function SalasPage() {
             </div>
 
             <div className="col-2 mt-3 pb-3">
-              <button type="submit" className="btn btn-primary btn-lg">
+              <button onClick={exportExcel} className="btn btn-primary btn-lg">
                 Exportar Excel
               </button>
             </div>
@@ -79,4 +83,3 @@ function SalasPage() {
 }
 
 export default SalasPage;
-
