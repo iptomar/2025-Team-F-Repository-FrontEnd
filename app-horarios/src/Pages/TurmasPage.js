@@ -27,7 +27,16 @@ function TurmasPage() {
       const bloco = listaBlocos.find((b) => String(b.id) === String(draggableId));
       if (!bloco) return;
 
-      setGradeBlocos((prev) => [...prev, { ...bloco, dia, hora }]);
+      setGradeBlocos((prev) => [
+        ...prev,
+        {
+          ...bloco,
+          dia,
+          horaInicio: hora,
+          horaFim: calcularHoraFimComDuracao(hora),
+        },
+      ]);
+
       setListaBlocos((prev) => prev.filter((b) => String(b.id) !== String(draggableId)));
     } else if (isFromGrid && !isToGrid && destination.droppableId === "blocos-list") {
       // Bloco removido do horário e devolvido à lista
@@ -42,6 +51,16 @@ function TurmasPage() {
   const proximaSemana = () => setSemanaAtual((prev) => prev + 1);
   const semanaAnterior = () => setSemanaAtual((prev) => (prev > 1 ? prev - 1 : 1));
 
+  const calcularHoraFimComDuracao = (horaInicio, duracaoHoras) => {
+    const [h, m] = horaInicio.split(":").map(Number);
+    const totalMin = h * 60 + m + duracaoHoras * 60;
+    const hh = String(Math.floor(totalMin / 60)).padStart(2, "0");
+    const mm = String(totalMin % 60).padStart(2, "0");
+    return `${hh}:${mm}`;
+  };
+
+
+
   return (
     <>
       <div className="container pt-3">
@@ -54,12 +73,14 @@ function TurmasPage() {
               .then((blocos) => {
                 if (Array.isArray(blocos)) {
                   const blocosMapeados = blocos.map((b, index) => ({
-                    id: index, // gera um id temporário se a API não fornecer
+                    id: `${b.idBloco}-${Date.now()}`,
                     nomeDisciplina: b.nomeDisciplina,
                     tipoAula: b.tipoAula,
                     professor: Array.isArray(b.nomeProfessor) ? b.nomeProfessor.join(", ") : b.nomeProfessor,
-                    sala: b.nomeSala
+                    sala: b.nomeSala,
+                    duracao: b.duracao || 1 // ← garante que a duração está presente!
                   }));
+
                   setListaBlocos(blocosMapeados);
                 }
 

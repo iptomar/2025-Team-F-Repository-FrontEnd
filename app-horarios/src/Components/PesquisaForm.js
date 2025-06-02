@@ -3,6 +3,7 @@ import {
   fetchCursos,
   fetchEscolas,
   fetchLocalizacoes,
+  fetchTurmas
 } from '../Services/api';
 
 function PesquisaForm({ tipo, onPesquisar }) {
@@ -16,6 +17,8 @@ function PesquisaForm({ tipo, onPesquisar }) {
   const [localizacoes, setLocalizacoes] = useState([]);
   const [escolas, setEscolas] = useState([]);
   const [cursos, setCursos] = useState([]);
+  const [turmas, setTurmas] = useState([]);
+
 
   // Controle de habilitação dos selects dependentes
   const isEscolaEnabled = localizacao !== "";
@@ -27,14 +30,16 @@ function PesquisaForm({ tipo, onPesquisar }) {
   useEffect(() => {
     async function carregarDados() {
       try {
-        const [locs, escs, curs] = await Promise.all([
+        const [locs, escs, curs, turms] = await Promise.all([
           fetchLocalizacoes(),
           fetchEscolas(),
           fetchCursos(),
+          fetchTurmas(),
         ]);
         setLocalizacoes(locs);
         setEscolas(escs);
         setCursos(curs);
+        setTurmas(turms);
       } catch (error) {
         console.error("Erro ao carregar dados:", error);
       }
@@ -57,16 +62,24 @@ function PesquisaForm({ tipo, onPesquisar }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    console.log("Valores do formulário:", { curso, ano, semestre });
+
+    const cursoIdNum = Number(curso);
+    const anoNum = Number(ano);
+    const semestreNum = Number(semestre);
+
     if (curso && ano && semestre) {
       onPesquisar({
-        cursoId: Number(curso),
-        ano: Number(ano),
-        semestre: Number(semestre),
+        cursoId: cursoIdNum,
+        ano: anoNum,
+        semestre: semestreNum,
       });
     } else {
       console.warn("Campos obrigatórios em falta!");
+      alert("Por favor, preencha todos os campos obrigatórios antes de continuar.");
     }
   };
+
 
   // Gera as opções de ano acadêmico com base no tipo do curso
   const gerarOpcoesAno = () => {
@@ -198,12 +211,15 @@ function PesquisaForm({ tipo, onPesquisar }) {
           <select
             className="form-select"
             value={semestre}
-            onChange={(e) => setSemestre(e.target.value)}
+            onChange={(e) => {
+              console.log("🎯 Semestre selecionado:", e.target.value);
+              setSemestre(e.target.value);
+            }}
             disabled={!isSemestreEnabled}
           >
             <option value="">Selecione</option>
-            <option value="1">1º Semestre</option>
-            <option value="2">2º Semestre</option>
+            <option value="S1">1º Semestre</option>
+            <option value="S2">2º Semestre</option>
           </select>
         </div>
 

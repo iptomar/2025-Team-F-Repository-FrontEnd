@@ -1,4 +1,4 @@
-const baseUrl = " http://localhost:5281";
+const baseUrl = "https://api-horarios.onrender.com";
 
 export const fetchLocalizacoes = async () => {
   const res = await fetch(`${baseUrl}/api/LocalizacaoAPI`);
@@ -15,8 +15,13 @@ export const fetchCursos = async () => {
   return await res.json();
 };
 
+export const fetchTurmas = async () => {
+  const res = await fetch(`${baseUrl}/api/TurmaAPI`);
+  return await res.json();
+};
+
 export const fetchBlocos = async (cursoId, ano, semestre) => {
-  const url = `${baseUrl}/api/BlocoHorarioAPI/por-curso/${cursoId}/ano/${ano}/semestre/${semestre}`;
+  const url = `${baseUrl}/api/BlocoAulaAPI/por-curso/${cursoId}/ano/${ano}/semestre/${semestre}`;
   console.log("🔍 Requisição para:", url);
 
   try {

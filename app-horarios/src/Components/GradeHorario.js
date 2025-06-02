@@ -10,13 +10,22 @@ const horas = Array.from({ length: 28 }, (_, i) => {
 });
 
 function calcularDuracaoBlocos(horaInicio, horaFim) {
-  if (!horaInicio || !horaFim) return 1;
+  if (
+    !horaInicio || !horaFim ||
+    !horaInicio.includes(":") || !horaFim.includes(":")
+  ) return 1;
+
   const [h1, m1] = horaInicio.split(":").map(Number);
   const [h2, m2] = horaFim.split(":").map(Number);
+
+  if (isNaN(h1) || isNaN(m1) || isNaN(h2) || isNaN(m2)) return 1;
+
   const minutos1 = h1 * 60 + m1;
   const minutos2 = h2 * 60 + m2;
   const duracaoMin = minutos2 - minutos1;
-  return Math.max(1, duracaoMin / 30);
+  const blocos30min = duracaoMin / 30;
+
+  return Math.max(1, blocos30min);
 }
 
 function GradeHorario({ blocos = [] }) {
@@ -36,27 +45,34 @@ function GradeHorario({ blocos = [] }) {
             <tr key={hora}>
               <td className="fw-bold">{hora}</td>
               {diasSemana.map((dia) => {
-                const bloco = blocos.find((b) => b.dia === dia && b.horaInicio === hora);
                 const cellId = `cell-${dia}-${hora}`;
 
-                const jaRenderizado = blocos.some((b) => {
-                  const blocosAntes = horas.slice(0, rowIndex);
-                  const blocosOcupados = calcularDuracaoBlocos(b.horaInicio, b.horaFim);
+                // Verifica se há um bloco que deve começar exatamente nesta célula
+                const bloco = blocos.find(
+                  (b) => b.dia === dia && b.horaInicio === hora
+                );
+
+                // Evita renderizar células intermediárias já cobertas por um bloco com rowSpan
+                const estaCelulaOcupada = blocos.some((b) => {
+                  const iInicio = horas.indexOf(b.horaInicio);
+                  const iFim = horas.indexOf(b.horaFim);
                   return (
                     b.dia === dia &&
-                    blocosAntes.includes(hora) &&
-                    horas.indexOf(b.horaInicio) + blocosOcupados > rowIndex
+                    iInicio !== -1 &&
+                    iFim !== -1 &&
+                    rowIndex > iInicio &&
+                    rowIndex < iFim
                   );
                 });
 
-                if (jaRenderizado) return null;
+                if (estaCelulaOcupada) return null;
+
+                const rowSpan = bloco
+                  ? calcularDuracaoBlocos(bloco.horaInicio, bloco.horaFim)
+                  : 1;
 
                 return (
-                  <td
-                    key={dia + hora}
-                    className="p-1"
-                    rowSpan={bloco ? calcularDuracaoBlocos(bloco.horaInicio, bloco.horaFim) : 1}
-                  >
+                  <td key={dia + hora} className="p-1" rowSpan={rowSpan}>
                     <Droppable droppableId={cellId}>
                       {(provided) => (
                         <div
