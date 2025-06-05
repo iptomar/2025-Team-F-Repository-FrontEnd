@@ -34,7 +34,7 @@ function Login() {
           <img 
             src="https://www.ipt.pt/img/logo-ipt-share.png" 
             alt="IPT Logo" 
-            style={{ width: '150px', marginBottom: '1.5rem' }} 
+            style={{ width: '250px', marginBottom: '1.5rem' }} 
           />
           <h2 className="mb-4">Login</h2>
         </div>
