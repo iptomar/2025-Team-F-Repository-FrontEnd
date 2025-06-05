@@ -6,6 +6,7 @@ import SalasPage from "./Pages/SalasPage";
 import TurmasPage from "./Pages/TurmasPage";
 import ProfessoresPage from "./Pages/ProfessoresPage";
 import Blocos from "./Components/Blocos"; // <-- Novo caminho, pode estar em /Pages ou /Components
+import Login from "./Pages/Login";  
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/turmas" element={<TurmasPage />} />
         <Route path="/professores" element={<ProfessoresPage />} />
         <Route path="/blocos" element={<Blocos />} /> {/* NOVA ROTA */}
+        <Route path="/login" element={<Login />} />
       </Routes>
     </Router>
   );
