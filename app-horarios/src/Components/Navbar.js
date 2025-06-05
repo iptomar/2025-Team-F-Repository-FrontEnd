@@ -1,13 +1,19 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Navbar as BSNavbar, Nav, Container, Button } from 'react-bootstrap';
 
 function Navbar() {
   const navigate = useNavigate();
+  const location = useLocation();
   const isLoggedIn = !!localStorage.getItem('loggedInUser');
+  const isHorariosPage = location.pathname === '/horarios';
 
   const handleLogout = () => {
     localStorage.removeItem('loggedInUser');
+    navigate('/login');
+  };
+
+  const handleLogin = () => {
     navigate('/login');
   };
 
@@ -29,10 +35,16 @@ function Navbar() {
               </>
             )}
           </Nav>
-          {isLoggedIn && (
+          {isLoggedIn ? (
             <Button variant="outline-light" onClick={handleLogout}>
               Sair
             </Button>
+          ) : (
+            isHorariosPage && (
+              <Button variant="outline-light" onClick={handleLogin}>
+                Entrar
+              </Button>
+            )
           )}
         </BSNavbar.Collapse>
       </Container>
