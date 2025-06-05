@@ -40,6 +40,7 @@ function HorariosPage() {
           {/* Turmas */}
           <h3 className="mb-4 pt-3">Turmas</h3>
           <div className="p-3 border" ref={turmaRef}>
+            <p>Horário das Turmas</p>
             {turmas.map((turma, i) => (
               <div key={i} className="mb-3">
                 <h5>Horário {i + 1}</h5>
@@ -63,7 +64,7 @@ function HorariosPage() {
           <h3 className="mb-4 pt-3">Docentes</h3>
           <div className="p-3 border" ref={docentesRef}>
             {/* Conteúdo dos docentes */}
-            <p>Conteúdo dos docentes vai aqui...</p>
+            <p>Horário dos Docentes</p>
           </div>
           <div className="col-2 mt-3 pb-3">
             <button onClick={() => exportPDF(docentesRef, "horario_docentes")} className="btn btn-primary btn-lg">
@@ -75,7 +76,7 @@ function HorariosPage() {
           <h3 className="mb-4 pt-3">Salas</h3>
           <div className="p-3 border" ref={salasRef}>
             {/* Conteúdo das salas */}
-            <p>Conteúdo das salas vai aqui...</p>
+            <p>Horário das Salas</p>
           </div>
           <div className="col-2 mt-3 pb-3">
             <button onClick={() => exportPDF(salasRef, "horario_salas")} className="btn btn-primary btn-lg">

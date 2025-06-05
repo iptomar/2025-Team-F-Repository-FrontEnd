@@ -1,8 +1,7 @@
-// src/Pages/Login.js
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Container, Card, Form, Button, Alert } from 'react-bootstrap';
+import { Container, Card, Form, Button, Alert, Row, Col } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 
 function Login() {
   const [username, setUsername] = useState('');
@@ -16,58 +15,65 @@ function Login() {
       return;
     }
 
-    console.log('Login attempt with:', { username, password });
-
-    // Reset form
-    setUsername('');
-    setPassword('');
-    setError('');
-
-    // Redireciona para a página de horários
-    navigate('/horarios');
+    if (username === 'admin' && password === '1234') {
+      localStorage.setItem('loggedInUser', username);
+      navigate('/horarios');
+    } else {
+      setError('Credenciais inválidas');
+    }
   };
 
   return (
-    <Container className="d-flex justify-content-center align-items-center vh-100">
-      <Card className="p-4 shadow" style={{ width: '400px' }}>
-        <div className="text-center mb-4">
-          <img 
-            src="https://www.ipt.pt/img/logo-ipt-share.png" 
-            alt="IPT Logo" 
-            style={{ width: '250px', marginBottom: '1.5rem' }} 
-          />
-          <h2 className="mb-4">Login</h2>
-        </div>
-
-        <Form>
-          <Form.Group className="mb-3">
-            <Form.Control
-              type="text"
-              placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+    <Container className="vh-100 d-flex justify-content-center align-items-center">
+      <Card className="shadow-lg" style={{ width: '100%', maxWidth: '800px' }}>
+        <Row className="h-100">
+          {/* Lado da imagem */}
+          <Col md={6} className="d-none d-md-block p-0 d-flex align-items-center">
+            <img
+              src="https://www.ipt.pt/img/logo-ipt-share.png"
+              alt="Logo IPT"
+              className="img-fluid p-3"
+              style={{
+                maxHeight: '400px',
+                width: '100%',
+                objectFit: 'contain'
+              }}
             />
-          </Form.Group>
+          </Col>
 
-          <Form.Group className="mb-4">
-            <Form.Control
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </Form.Group>
+          {/* Lado do formulário */}
+          <Col md={6} className="p-5 d-flex flex-column justify-content-center">
+            <div className="text-center mb-4">
+              <h2 className="fw-bold">Login</h2>
+            </div>
 
-          {error && <Alert variant="danger" className="mb-3">{error}</Alert>}
+            <Form>
+              <Form.Group className="mb-3">
+                <Form.Control
+                  type="text"
+                  placeholder="Username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                />
+              </Form.Group>
 
-          <Button 
-            variant="primary" 
-            className="w-100 mb-3"
-            onClick={handleLogin}
-          >
-            Entrar
-          </Button>
-        </Form>
+              <Form.Group className="mb-3">
+                <Form.Control
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </Form.Group>
+
+              {error && <Alert variant="danger">{error}</Alert>}
+
+              <Button variant="primary" className="w-100" onClick={handleLogin}>
+                Entrar
+              </Button>
+            </Form>
+          </Col>
+        </Row>
       </Card>
     </Container>
   );
