@@ -1,4 +1,6 @@
+// src/Pages/Login.js
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Container, Card, Form, Button, Alert } from 'react-bootstrap';
 
@@ -6,20 +8,23 @@ function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleLogin = () => {
     if (!username || !password) {
       setError('Por favor, preencha todos os campos');
       return;
     }
-    
+
     console.log('Login attempt with:', { username, password });
-    
+
+    // Reset form
     setUsername('');
     setPassword('');
     setError('');
-    
-    alert('Login realizado com sucesso!');
+
+    // Redireciona para a página de horários
+    navigate('/horarios');
   };
 
   return (
@@ -27,7 +32,7 @@ function Login() {
       <Card className="p-4 shadow" style={{ width: '400px' }}>
         <div className="text-center mb-4">
           <img 
-            src="ipt-logo.png" 
+            src="https://www.ipt.pt/img/logo-ipt-share.png" 
             alt="IPT Logo" 
             style={{ width: '150px', marginBottom: '1.5rem' }} 
           />
