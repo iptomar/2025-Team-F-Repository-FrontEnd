@@ -1,16 +1,22 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { DragDropContext } from "@hello-pangea/dnd";
 import GradeHorario from "../Components/GradeHorario";
 import PesquisaForm from "../Components/PesquisaForm";
 import GradeBlocos from "../Components/GradeBlocos";
+import BotaoBloquear from "../Components/ButaoBloquear";
+import SeletorHorario from "../Components/TipoHorario";
+import BotaoGuardar from "../Components/BotaoGuardar";
 import { fetchBlocos } from '../Services/api';
 
 function TurmasPage() {
   const [gradeBlocos, setGradeBlocos] = useState([]);
   const [listaBlocos, setListaBlocos] = useState([]);
+  const [isBlocked, setIsBlocked] = useState(false);
   const [semanaAtual, setSemanaAtual] = useState(1);
 
   const handleDragEnd = (result) => {
+    if (isBlocked) return;
+
     const { source, destination, draggableId } = result;
     if (!destination) return;
 
@@ -18,7 +24,6 @@ function TurmasPage() {
     const isToGrid = destination.droppableId.startsWith("cell-");
 
     if (!isFromGrid && isToGrid) {
-      // Bloco movido da lista para o horário
       const parts = destination.droppableId.split("-");
       if (parts.length < 3) return;
 
@@ -27,6 +32,7 @@ function TurmasPage() {
       const bloco = listaBlocos.find((b) => String(b.id) === String(draggableId));
       if (!bloco) return;
 
+<<<<<<< HEAD
       setGradeBlocos((prev) => [
         ...prev,
         {
@@ -38,9 +44,12 @@ function TurmasPage() {
       ]);
 
       setListaBlocos((prev) => prev.filter((b) => String(b.id) !== String(draggableId)));
+=======
+      setGradeBlocos((prev) => [...prev, { ...bloco, dia, hora }]);
+      setListaBlocos((prev) => prev.filter((b) => b.id !== draggableId));
+>>>>>>> f88913940169e317746ded1a7340368303caa360
     } else if (isFromGrid && !isToGrid && destination.droppableId === "blocos-list") {
-      // Bloco removido do horário e devolvido à lista
-      const bloco = gradeBlocos.find((b) => String(b.id) === String(draggableId));
+      const bloco = gradeBlocos.find((b) => b.id === draggableId);
       if (!bloco) return;
 
       setGradeBlocos((prev) => prev.filter((b) => String(b.id) !== String(draggableId)));
@@ -51,6 +60,7 @@ function TurmasPage() {
   const proximaSemana = () => setSemanaAtual((prev) => prev + 1);
   const semanaAnterior = () => setSemanaAtual((prev) => (prev > 1 ? prev - 1 : 1));
 
+<<<<<<< HEAD
   const calcularHoraFimComDuracao = (horaInicio, duracaoHoras) => {
     const [h, m] = horaInicio.split(":").map(Number);
     const totalMin = h * 60 + m + duracaoHoras * 60;
@@ -60,6 +70,23 @@ function TurmasPage() {
   };
 
 
+=======
+  useEffect(() => {
+    async function carregarBlocos() {
+      const cursoId = 1;
+      const ano = 1;
+      const semestre = 1;
+      const blocosApi = await fetchBlocos(cursoId, ano, semestre);
+      setListaBlocos(blocosApi);
+    }
+
+    carregarBlocos();
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("gradeBlocosTemp", JSON.stringify(gradeBlocos));
+  }, [gradeBlocos]);
+>>>>>>> f88913940169e317746ded1a7340368303caa360
 
   return (
     <>
@@ -68,27 +95,38 @@ function TurmasPage() {
         <PesquisaForm
           tipo="Horários"
           onPesquisar={({ cursoId, ano, semestre }) => {
-            setGradeBlocos([]); // limpa o horário atual
+            setGradeBlocos([]);
             fetchBlocos(cursoId, ano, semestre)
               .then((blocos) => {
                 if (Array.isArray(blocos)) {
                   const blocosMapeados = blocos.map((b, index) => ({
+<<<<<<< HEAD
                     id: `${b.idBloco}-${Date.now()}`,
+=======
+                    id: index,
+>>>>>>> f88913940169e317746ded1a7340368303caa360
                     nomeDisciplina: b.nomeDisciplina,
                     tipoAula: b.tipoAula,
                     professor: Array.isArray(b.nomeProfessor) ? b.nomeProfessor.join(", ") : b.nomeProfessor,
                     sala: b.nomeSala,
+<<<<<<< HEAD
                     duracao: b.duracao || 1 // ← garante que a duração está presente!
+=======
+>>>>>>> f88913940169e317746ded1a7340368303caa360
                   }));
 
                   setListaBlocos(blocosMapeados);
+                } else {
+                  console.error("fetchBlocos não retornou array:", blocos);
                 }
-
-                else console.error("fetchBlocos não retornou array:", blocos);
               })
               .catch((err) => console.error("Erro fetchBlocos:", err));
           }}
         />
+      </div>
+
+      <div className="container pt-3">
+        <SeletorHorario />
       </div>
 
       <div className="container">
@@ -101,17 +139,10 @@ function TurmasPage() {
                   <small className="text-muted">Semana {semanaAtual}</small>
                 </div>
                 <div className="d-flex">
-                  <button
-                    className="btn btn-outline-secondary btn-sm me-2"
-                    onClick={semanaAnterior}
-                    disabled={semanaAtual === 1}
-                  >
+                  <button className="btn btn-outline-secondary btn-sm me-2" onClick={semanaAnterior}>
                     ← Semana Anterior
                   </button>
-                  <button
-                    className="btn btn-outline-secondary btn-sm"
-                    onClick={proximaSemana}
-                  >
+                  <button className="btn btn-outline-secondary btn-sm" onClick={proximaSemana}>
                     Próxima semana →
                   </button>
                 </div>
@@ -129,11 +160,8 @@ function TurmasPage() {
               </div>
             </div>
 
-            <div className="col-2 mt-3 pb-3">
-              <button type="button" className="btn btn-primary btn-lg" disabled>
-                Exportar Excel
-              </button>
-            </div>
+            <BotaoGuardar isBlocked={isBlocked} />
+            <BotaoBloquear isBlocked={isBlocked} setIsBlocked={setIsBlocked} />
           </div>
         </DragDropContext>
       </div>

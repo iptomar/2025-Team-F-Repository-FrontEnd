@@ -5,18 +5,21 @@ import HorariosPage from "./Pages/HorariosPage";
 import SalasPage from "./Pages/SalasPage";
 import TurmasPage from "./Pages/TurmasPage";
 import ProfessoresPage from "./Pages/ProfessoresPage";
-import Blocos from "./Components/Blocos"; // <-- Novo caminho, pode estar em /Pages ou /Components
+import Blocos from "./Components/Blocos";
+import Login from "./Pages/Login";
 
 function App() {
   return (
     <Router>
       <Navbar />
       <Routes>
+        <Route path="/" element={<Login />} /> {/* Página inicial */}
+        <Route path="/login" element={<Login />} />
         <Route path="/horarios" element={<HorariosPage />} />
         <Route path="/salas" element={<SalasPage />} />
         <Route path="/turmas" element={<TurmasPage />} />
         <Route path="/professores" element={<ProfessoresPage />} />
-        <Route path="/blocos" element={<Blocos />} /> {/* NOVA ROTA */}
+        <Route path="/blocos" element={<Blocos />} />
       </Routes>
     </Router>
   );
