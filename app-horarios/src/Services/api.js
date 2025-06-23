@@ -19,6 +19,10 @@ export const fetchTurmas = async () => {
   const res = await fetch(`${baseUrl}/api/TurmaAPI`);
   return await res.json();
 };
+export const fetchUsers = async () => {
+  const res = await fetch(`${baseUrl}/api/UserAPI`);
+  return await res.json();
+};
 
 export const fetchBlocos = async (cursoId, ano, semestre) => {
   const url = `${baseUrl}/api/BlocoAulaAPI/por-curso/${cursoId}/ano/${ano}/semestre/${semestre}`;
