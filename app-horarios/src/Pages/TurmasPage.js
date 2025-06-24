@@ -14,6 +14,14 @@ function TurmasPage() {
   const [isBlocked, setIsBlocked] = useState(false);
   const [semanaAtual, setSemanaAtual] = useState(1);
 
+  const calcularHoraFimComDuracao = (horaInicio, duracaoHoras = 1) => {
+    const [h, m] = horaInicio.split(":").map(Number);
+    const totalMin = h * 60 + m + duracaoHoras * 60;
+    const hh = String(Math.floor(totalMin / 60)).padStart(2, "0");
+    const mm = String(totalMin % 60).padStart(2, "0");
+    return `${hh}:${mm}`;
+  };
+
   const handleDragEnd = (result) => {
     if (isBlocked) return;
 
@@ -29,27 +37,23 @@ function TurmasPage() {
 
       const dia = parts[1];
       const hora = parts.slice(2).join("-");
+
       const bloco = listaBlocos.find((b) => String(b.id) === String(draggableId));
       if (!bloco) return;
 
-<<<<<<< HEAD
       setGradeBlocos((prev) => [
         ...prev,
         {
           ...bloco,
           dia,
           horaInicio: hora,
-          horaFim: calcularHoraFimComDuracao(hora),
+          horaFim: calcularHoraFimComDuracao(hora, bloco.duracao || 1),
         },
       ]);
 
       setListaBlocos((prev) => prev.filter((b) => String(b.id) !== String(draggableId)));
-=======
-      setGradeBlocos((prev) => [...prev, { ...bloco, dia, hora }]);
-      setListaBlocos((prev) => prev.filter((b) => b.id !== draggableId));
->>>>>>> f88913940169e317746ded1a7340368303caa360
     } else if (isFromGrid && !isToGrid && destination.droppableId === "blocos-list") {
-      const bloco = gradeBlocos.find((b) => b.id === draggableId);
+      const bloco = gradeBlocos.find((b) => String(b.id) === String(draggableId));
       if (!bloco) return;
 
       setGradeBlocos((prev) => prev.filter((b) => String(b.id) !== String(draggableId)));
@@ -60,17 +64,6 @@ function TurmasPage() {
   const proximaSemana = () => setSemanaAtual((prev) => prev + 1);
   const semanaAnterior = () => setSemanaAtual((prev) => (prev > 1 ? prev - 1 : 1));
 
-<<<<<<< HEAD
-  const calcularHoraFimComDuracao = (horaInicio, duracaoHoras) => {
-    const [h, m] = horaInicio.split(":").map(Number);
-    const totalMin = h * 60 + m + duracaoHoras * 60;
-    const hh = String(Math.floor(totalMin / 60)).padStart(2, "0");
-    const mm = String(totalMin % 60).padStart(2, "0");
-    return `${hh}:${mm}`;
-  };
-
-
-=======
   useEffect(() => {
     async function carregarBlocos() {
       const cursoId = 1;
@@ -86,7 +79,6 @@ function TurmasPage() {
   useEffect(() => {
     localStorage.setItem("gradeBlocosTemp", JSON.stringify(gradeBlocos));
   }, [gradeBlocos]);
->>>>>>> f88913940169e317746ded1a7340368303caa360
 
   return (
     <>
@@ -100,19 +92,12 @@ function TurmasPage() {
               .then((blocos) => {
                 if (Array.isArray(blocos)) {
                   const blocosMapeados = blocos.map((b, index) => ({
-<<<<<<< HEAD
-                    id: `${b.idBloco}-${Date.now()}`,
-=======
-                    id: index,
->>>>>>> f88913940169e317746ded1a7340368303caa360
+                    id: `${b.idBloco}-${Date.now()}-${index}`,
                     nomeDisciplina: b.nomeDisciplina,
                     tipoAula: b.tipoAula,
                     professor: Array.isArray(b.nomeProfessor) ? b.nomeProfessor.join(", ") : b.nomeProfessor,
                     sala: b.nomeSala,
-<<<<<<< HEAD
-                    duracao: b.duracao || 1 // ← garante que a duração está presente!
-=======
->>>>>>> f88913940169e317746ded1a7340368303caa360
+                    duracao: b.duracao || 1
                   }));
 
                   setListaBlocos(blocosMapeados);

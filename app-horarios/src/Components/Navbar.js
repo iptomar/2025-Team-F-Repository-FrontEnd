@@ -8,6 +8,8 @@ function Navbar() {
   const isLoggedIn = !!localStorage.getItem('loggedInUser');
   const isHorariosPage = location.pathname === '/horarios';
 
+   const user = isLoggedIn ? JSON.parse(localStorage.getItem('loggedInUser')) : null;
+
   const handleLogout = () => {
     localStorage.removeItem('loggedInUser');
     navigate('/login');
@@ -36,9 +38,14 @@ function Navbar() {
             )}
           </Nav>
           {isLoggedIn ? (
-            <Button variant="outline-light" onClick={handleLogout}>
-              Sair
-            </Button>
+            <>
+                <span className="text-light me-3">
+                  Olá, <strong>{user?.nome || user?.email}</strong>
+                </span>
+                <Button variant="outline-light" onClick={handleLogout}>
+                  Sair
+                </Button>
+              </>
           ) : (
             isHorariosPage && (
               <Button variant="outline-light" onClick={handleLogin}>

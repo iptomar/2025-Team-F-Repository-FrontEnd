@@ -20,9 +20,27 @@ export const fetchTurmas = async () => {
   return await res.json();
 };
 export const fetchUsers = async () => {
-  const res = await fetch(`${baseUrl}/api/UserAPI`);
+  const res = await fetch(`${baseUrl}/api/UtilizadorAPI`);
   return await res.json();
 };
+
+export async function loginUser(email, password) {
+  const response = await fetch(`${baseUrl}/api/LoginAPI/login`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ email, password })
+  });
+
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.message || 'Erro ao fazer login');
+  }
+
+  return await response.json();
+}
+
 
 export const fetchBlocos = async (cursoId, ano, semestre) => {
   const url = `${baseUrl}/api/BlocoAulaAPI/por-curso/${cursoId}/ano/${ano}/semestre/${semestre}`;
