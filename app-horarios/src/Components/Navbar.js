@@ -32,7 +32,7 @@ function Navbar() {
               <>
                 <Nav.Link as={Link} to="/horarios">Horários</Nav.Link>
                 <Nav.Link as={Link} to="/salas">Salas</Nav.Link>
-                <Nav.Link as={Link} to="/turmas">Turmas</Nav.Link>
+                <Nav.Link as={Link} to="/turmas">Marcar</Nav.Link>
                 <Nav.Link as={Link} to="/professores">Professores</Nav.Link>
               </>
             )}

@@ -83,7 +83,7 @@ function TurmasPage() {
   return (
     <>
       <div className="container pt-3">
-        <h2 className="mb-4 pt-3">Consulta e Planeamento de Horários</h2>
+        <h2 className="mb-4 pt-3">Planificação de Horários </h2>
         <PesquisaForm
           tipo="Horários"
           onPesquisar={({ cursoId, ano, semestre }) => {
@@ -114,21 +114,6 @@ function TurmasPage() {
         <DragDropContext onDragEnd={handleDragEnd}>
           <div className="row">
             <div className="col-md-9">
-              <div className="mb-4 pt-3 d-flex justify-content-between align-items-center">
-                <div>
-                  <h2 className="mb-0">Horário Turma</h2>
-                  <small className="text-muted">Semana {semanaAtual}</small>
-                </div>
-                <div className="d-flex">
-                  <button className="btn btn-outline-secondary btn-sm me-2" onClick={semanaAnterior}>
-                    ← Semana Anterior
-                  </button>
-                  <button className="btn btn-outline-secondary btn-sm" onClick={proximaSemana}>
-                    Próxima semana →
-                  </button>
-                </div>
-              </div>
-
               <div className="p-3 border">
                 <GradeHorario blocos={gradeBlocos} />
               </div>
@@ -140,9 +125,6 @@ function TurmasPage() {
                 <GradeBlocos blocos={listaBlocos} />
               </div>
             </div>
-
-            <BotaoGuardar isBlocked={isBlocked} />
-            <BotaoBloquear isBlocked={isBlocked} setIsBlocked={setIsBlocked} />
           </div>
         </DragDropContext>
       </div>
