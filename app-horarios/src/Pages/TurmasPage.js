@@ -110,10 +110,6 @@ function TurmasPage() {
         />
       </div>
 
-      <div className="container pt-3">
-        <SeletorHorario />
-      </div>
-
       <div className="container">
         <DragDropContext onDragEnd={handleDragEnd}>
           <div className="row">

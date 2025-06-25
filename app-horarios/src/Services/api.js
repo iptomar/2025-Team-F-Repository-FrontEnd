@@ -1,31 +1,31 @@
-const baseUrl = "https://api-horarios.onrender.com";
+const baseUrl = "https://api-horarios.onrender.com/api";
 
 export const fetchLocalizacoes = async () => {
-  const res = await fetch(`${baseUrl}/api/LocalizacaoAPI`);
+  const res = await fetch(`${baseUrl}/LocalizacaoAPI`);
   return await res.json();
 };
 
 export const fetchEscolas = async () => {
-  const res = await fetch(`${baseUrl}/api/EscolaAPI`);
+  const res = await fetch(`${baseUrl}/EscolaAPI`);
   return await res.json();
 };
 
 export const fetchCursos = async () => {
-  const res = await fetch(`${baseUrl}/api/CursoAPI`);
+  const res = await fetch(`${baseUrl}/CursoAPI`);
   return await res.json();
 };
 
 export const fetchTurmas = async () => {
-  const res = await fetch(`${baseUrl}/api/TurmaAPI`);
+  const res = await fetch(`${baseUrl}/TurmaAPI`);
   return await res.json();
 };
 export const fetchUsers = async () => {
-  const res = await fetch(`${baseUrl}/api/UtilizadorAPI`);
+  const res = await fetch(`${baseUrl}/UtilizadorAPI`);
   return await res.json();
 };
 
 export async function loginUser(email, password) {
-  const response = await fetch(`${baseUrl}/api/LoginAPI/login`, {
+  const response = await fetch(`${baseUrl}/LoginAPI/login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'

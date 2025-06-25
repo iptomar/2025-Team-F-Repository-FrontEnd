@@ -1,27 +1,22 @@
 import React, { useEffect, useState } from 'react';
+import Select from 'react-select';
 import {
   fetchCursos,
   fetchEscolas,
-  fetchLocalizacoes,
   fetchTurmas
 } from '../Services/api';
 
 function PesquisaForm({ tipo, onPesquisar }) {
-  const [localizacao, setLocalizacao] = useState("");
   const [escola, setEscola] = useState("");
   const [curso, setCurso] = useState("");
   const [ano, setAno] = useState("");
   const [semestre, setSemestre] = useState("");
   const [turma, setTurma] = useState("");
 
-  const [localizacoes, setLocalizacoes] = useState([]);
   const [escolas, setEscolas] = useState([]);
   const [cursos, setCursos] = useState([]);
   const [turmas, setTurmas] = useState([]);
 
-
-  // Controle de habilitação dos selects dependentes
-  const isEscolaEnabled = localizacao !== "";
   const isCursoEnabled = escola !== "";
   const isTurmaEnabled = curso !== "";
   const isAnoEnabled = curso !== "";
@@ -30,13 +25,11 @@ function PesquisaForm({ tipo, onPesquisar }) {
   useEffect(() => {
     async function carregarDados() {
       try {
-        const [locs, escs, curs, turms] = await Promise.all([
-          fetchLocalizacoes(),
+        const [escs, curs, turms] = await Promise.all([
           fetchEscolas(),
           fetchCursos(),
           fetchTurmas(),
         ]);
-        setLocalizacoes(locs);
         setEscolas(escs);
         setCursos(curs);
         setTurmas(turms);
@@ -47,23 +40,16 @@ function PesquisaForm({ tipo, onPesquisar }) {
     carregarDados();
   }, []);
 
-  // Filtra escolas pela localização selecionada
-  const escolasFiltradas = localizacao
-    ? escolas.filter(e => e.localizacao?.id === Number(localizacao))
-    : escolas;
+  // Filtro de cursos da escola selecionada
+  const cursosFiltrados = cursos.filter(c => {
+    return escola ? c.idEscola === Number(escola) : false;
+  });
 
-  // Obtem a escola selecionada (objeto)
-  const escolaSelecionada = escolas.find(e => e.id === Number(escola));
-  const cursosFiltrados = escolaSelecionada?.cursos || [];
-
-  // Obtem o curso selecionado (objeto)
   const cursoSelecionado = cursosFiltrados.find(c => c.id === Number(curso));
   const turmasFiltradas = cursoSelecionado?.turmas || [];
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Valores do formulário:", { curso, ano, semestre });
-
     const cursoIdNum = Number(curso);
     const anoNum = Number(ano);
     const semestreNum = Number(semestre);
@@ -75,13 +61,10 @@ function PesquisaForm({ tipo, onPesquisar }) {
         semestre: semestreNum,
       });
     } else {
-      console.warn("Campos obrigatórios em falta!");
-      alert("Por favor, preencha todos os campos obrigatórios antes de continuar.");
+      alert("Por favor, preencha todos os campos obrigatórios.");
     }
   };
 
-
-  // Gera as opções de ano acadêmico com base no tipo do curso
   const gerarOpcoesAno = () => {
     if (!cursoSelecionado) return null;
 
@@ -110,85 +93,51 @@ function PesquisaForm({ tipo, onPesquisar }) {
       <h5 className="mb-3">Filtrar {tipo}</h5>
       <form className="row g-3" onSubmit={handleSubmit}>
 
-        {/* Localização */}
-        <div className="col-md-4">
-          <label className="form-label">Localização</label>
-          <select
-            className="form-select"
-            value={localizacao}
-            onChange={(e) => {
-              setLocalizacao(e.target.value);
-              setEscola("");
-              setCurso("");
-              setAno("");
-              setSemestre("");
-              setTurma("");
-            }}
-          >
-            <option value="">Selecione</option>
-            {localizacoes.map(l => (
-              <option key={l.id} value={l.id}>{l.nome}</option>
-            ))}
-          </select>
-        </div>
-
-        {/* Escola */}
-        <div className="col-md-4">
+        {/* Escola (autocomplete) */}
+        <div className="col-md-6">
           <label className="form-label">Escola</label>
-          <select
-            className="form-select"
-            value={escola}
-            onChange={(e) => {
-              setEscola(e.target.value);
+          <Select
+            options={escolas.map(e => ({
+              value: e.id,
+              label: e.nome
+            }))}
+            value={escolas.map(e => ({
+              value: e.id,
+              label: e.nome
+            })).find(opt => opt.value === Number(escola))}
+            onChange={(selected) => {
+              setEscola(selected?.value || "");
               setCurso("");
               setAno("");
               setSemestre("");
               setTurma("");
             }}
-            disabled={!isEscolaEnabled}
-          >
-            <option value="">Selecione</option>
-            {escolasFiltradas.map(e => (
-              <option key={e.id} value={e.id}>{e.nome}</option>
-            ))}
-          </select>
+            placeholder="Digite ou selecione a escola"
+            noOptionsMessage={() => "Nenhuma escola encontrada"}
+          />
         </div>
 
-        {/* Curso */}
-        <div className="col-md-4">
+        {/* Curso (autocomplete) */}
+        <div className="col-md-6">
           <label className="form-label">Curso</label>
-          <select
-            className="form-select"
-            value={curso}
-            onChange={(e) => {
-              setCurso(e.target.value);
+          <Select
+            options={cursosFiltrados.map(c => ({
+              value: c.id,
+              label: c.nome
+            }))}
+            value={cursosFiltrados
+              .map(c => ({ value: c.id, label: c.nome }))
+              .find(opt => opt.value === Number(curso))}
+            onChange={(selected) => {
+              setCurso(selected?.value || "");
               setAno("");
               setSemestre("");
               setTurma("");
             }}
-            disabled={!isCursoEnabled}
-          >
-            <option value="">Selecione</option>
-            {cursosFiltrados.map(c => (
-              <option key={c.id} value={c.id}>{c.nome}</option>
-            ))}
-          </select>
-        </div>
-
-        {/* Turma */}
-        <div className="col-md-4">
-          <label className="form-label">Turma</label>
-          <select
-            className="form-select"
-            value={turma}
-            onChange={(e) => setTurma(e.target.value)}
-            disabled={!isTurmaEnabled}
-          >
-            <option value="">Selecione</option>
-            {turmasFiltradas.map(t => (
-              <option key={t.id} value={t.id}>{t.nome}</option>
-            ))}
-          </select>
+            isDisabled={!isCursoEnabled}
+            placeholder="Digite ou selecione o curso"
+            noOptionsMessage={() => "Nenhum curso encontrado"}
+          />
         </div>
 
         {/* Ano Académico */}
@@ -211,10 +160,7 @@ function PesquisaForm({ tipo, onPesquisar }) {
           <select
             className="form-select"
             value={semestre}
-            onChange={(e) => {
-              console.log("🎯 Semestre selecionado:", e.target.value);
-              setSemestre(e.target.value);
-            }}
+            onChange={(e) => setSemestre(e.target.value)}
             disabled={!isSemestreEnabled}
           >
             <option value="">Selecione</option>
@@ -230,7 +176,53 @@ function PesquisaForm({ tipo, onPesquisar }) {
           </button>
         </div>
       </form>
+      <div className="card p-4 shadow-sm border mt-4">
+        <h5 className="mb-3">Turma e Ações</h5>
+
+        <div className="row g-3 align-items-end">
+          <div className="col-md-6">
+            <label className="form-label">Turma</label>
+            <select
+              className="form-select"
+              value={turma}
+              onChange={(e) => setTurma(e.target.value)}
+              disabled={cursosFiltrados.length === 0}
+            >
+              <option value="">Selecione a turma</option>
+              {turmasFiltradas.map(t => (
+                <option key={t.id} value={t.id}>{t.nome}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="col-md-6 d-flex gap-2">
+            <button
+              className="btn btn-success"
+              disabled={!turma}
+              onClick={() => {
+                // Substitua pela lógica real
+                console.log("✅ Salvar grade da turma:", turma);
+              }}
+            >
+              <i className="bi bi-save" /> Salvar
+            </button>
+
+            <button
+              className="btn btn-warning"
+              disabled={!turma}
+              onClick={() => {
+                // Substitua pela lógica real
+                console.log("🔒 Bloquear horário da turma:", turma);
+              }}
+            >
+              <i className="bi bi-lock-fill" /> Bloquear
+            </button>
+          </div>
+        </div>
+      </div>
+
     </div>
+
   );
 }
 
