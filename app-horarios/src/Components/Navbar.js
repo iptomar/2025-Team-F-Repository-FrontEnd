@@ -22,7 +22,7 @@ function Navbar() {
   return (
     <BSNavbar bg="dark" variant="dark" expand="lg">
       <Container>
-        <BSNavbar.Brand as={Link} to="/horarios">
+        <BSNavbar.Brand as={Link} to="/home">
           IPT Horários
         </BSNavbar.Brand>
         <BSNavbar.Toggle aria-controls="basic-navbar-nav" />
@@ -30,10 +30,11 @@ function Navbar() {
           <Nav className="me-auto">
             {isLoggedIn && (
               <>
-                <Nav.Link as={Link} to="/horarios">Horários</Nav.Link>
-                <Nav.Link as={Link} to="/salas">Salas</Nav.Link>
+                
+                <Nav.Link as={Link} to="/home">Horários</Nav.Link>
                 <Nav.Link as={Link} to="/turmas">Marcar</Nav.Link>
-                <Nav.Link as={Link} to="/professores">Professores</Nav.Link>
+                <Nav.Link as={Link} to="/horarios">Exportar</Nav.Link>
+                
               </>
             )}
           </Nav>
