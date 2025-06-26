@@ -3,15 +3,21 @@ import Select from 'react-select';
 import {
   fetchCursos,
   fetchEscolas,
-  fetchTurmas
+  fetchTurmas,
+  fetchTurmasPorCurso,
+  salvarHorario
 } from '../Services/api';
 
-function PesquisaForm({ tipo, onPesquisar }) {
+
+function PesquisaForm({ tipo, onPesquisar, onSalvar, setTurmaSelecionada, onBloquear }) {
+
+
   const [escola, setEscola] = useState("");
   const [curso, setCurso] = useState("");
   const [ano, setAno] = useState("");
   const [semestre, setSemestre] = useState("");
-  const [turma, setTurma] = useState("");
+  const [turma, setTurma] = useState(null);
+
 
   const [escolas, setEscolas] = useState([]);
   const [cursos, setCursos] = useState([]);
@@ -35,9 +41,21 @@ function PesquisaForm({ tipo, onPesquisar }) {
     carregarDados();
   }, []);
 
+  useEffect(() => {
+    if (curso) {
+      fetchTurmasPorCurso(curso)
+        .then(setTurmas)
+        .catch((err) => {
+          console.error("Erro ao buscar turmas:", err);
+          setTurmas([]);
+        });
+    } else {
+      setTurmas([]);
+    }
+  }, [curso]);
+
   const cursosFiltrados = cursos.filter(c => escola && c.idEscola === Number(escola));
   const cursoSelecionado = cursosFiltrados.find(c => c.id === Number(curso));
-  const turmasFiltradas = cursoSelecionado?.turmas || [];
 
   const gerarOpcoesAno = () => {
     if (!cursoSelecionado) return null;
@@ -59,8 +77,10 @@ function PesquisaForm({ tipo, onPesquisar }) {
       onPesquisar({
         cursoId: Number(curso),
         ano: Number(ano),
-        semestre: Number(semestre),
+        semestre: semestre,
+        turmaId: setTurmaSelecionada
       });
+
     } else {
       alert("Por favor, preencha todos os campos obrigatórios.");
     }
@@ -119,7 +139,7 @@ function PesquisaForm({ tipo, onPesquisar }) {
             </div>
 
             <div className="col-md-4">
-              <label className="form-label fw-semibold">Semestre</label>
+              <label className="form-label fw-semibold">Semestre/Anual</label>
               <select
                 className="form-select"
                 value={semestre}
@@ -127,6 +147,7 @@ function PesquisaForm({ tipo, onPesquisar }) {
                 disabled={!ano}
               >
                 <option value="">Selecione</option>
+                <option value="A">Anual</option>
                 <option value="S1">1º Semestre</option>
                 <option value="S2">2º Semestre</option>
               </select>
@@ -151,11 +172,15 @@ function PesquisaForm({ tipo, onPesquisar }) {
               <select
                 className="form-select"
                 value={turma}
-                onChange={(e) => setTurma(e.target.value)}
-                disabled={cursosFiltrados.length === 0}
+                onChange={(e) => {
+                  const idTurma = parseInt(e.target.value);
+                  setTurma(idTurma);
+                  setTurmaSelecionada(idTurma); // ✅ Agora é número
+                }}
+                disabled={!curso}
               >
                 <option value="">Selecione a turma</option>
-                {turmasFiltradas.map(t => (
+                {turmas.map(t => (
                   <option key={t.id} value={t.id}>{t.nome}</option>
                 ))}
               </select>
@@ -166,20 +191,26 @@ function PesquisaForm({ tipo, onPesquisar }) {
                 className="btn btn-success"
                 disabled={!turma}
                 onClick={() => {
-                  console.log("✅ Salvar grade da turma:", turma);
+                  if (onSalvar && turma) {
+                    onSalvar(Number(turma));
+                  }
                 }}
               >
                 <i className="bi bi-save" /> Salvar
               </button>
+
               <button
                 className="btn btn-warning"
                 disabled={!turma}
                 onClick={() => {
-                  console.log("🔒 Bloquear horário da turma:", turma);
+                  if (onBloquear && turma) {
+                    onBloquear(Number(turma));
+                  }
                 }}
               >
                 <i className="bi bi-lock-fill" /> Bloquear
               </button>
+
             </div>
           </div>
         </div>
