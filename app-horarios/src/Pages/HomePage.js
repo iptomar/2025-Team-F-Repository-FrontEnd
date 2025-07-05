@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
 import GradeHorario from '../Components/GradeHorario';
 import { DragDropContext } from "@hello-pangea/dnd";
@@ -10,18 +10,21 @@ import {
     BiDoorOpen
 } from 'react-icons/bi';
 
+import {
+    fetchLocalizacoes,
+    fetchEscolas,
+    fetchCursos,
+    fetchTurmas,
+    fetchBlocos,
+    fetchUsers
+} from '../Services/api'; // Certifica-te que o caminho está certo!
+
 function HomePage() {
     const [filtroAtivo, setFiltroAtivo] = useState(null);
+    const [opcoes, setOpcoes] = useState([]);
     const [selecao, setSelecao] = useState(null);
     const [semanaAtual, setSemanaAtual] = useState(1);
     const [gradeBlocos, setGradeBlocos] = useState([]);
-
-    // Mock de opções (depois substitui com dados reais)
-    const opcoesMock = [
-        { value: 1, label: 'Opção 1' },
-        { value: 2, label: 'Opção 2' },
-        { value: 3, label: 'Opção 3' }
-    ];
 
     const icones = [
         { id: 'localizacao', label: 'Localidade', icon: <BiMap size={30} /> },
@@ -31,9 +34,62 @@ function HomePage() {
         { id: 'professor', label: 'Professor', icon: <BiUser size={30} /> }
     ];
 
+    // Carrega opções ao ativar filtro
+    useEffect(() => {
+        const carregarOpcoes = async () => {
+            try {
+                if (filtroAtivo === 'localizacao') {
+                    const data = await fetchLocalizacoes();
+                    setOpcoes(data.map(item => ({ value: item.id, label: item.nome })));
+                } else if (filtroAtivo === 'escola') {
+                    const data = await fetchEscolas();
+                    setOpcoes(data.map(item => ({ value: item.id, label: item.nome })));
+                } else if (filtroAtivo === 'curso') {
+                    const data = await fetchCursos();
+                    setOpcoes(data.map(item => ({ value: item.id, label: item.nome })));
+                } else if (filtroAtivo === 'sala') {
+                    const data = await fetchTurmas(); // Exemplo: ou fetchSalas se tiveres
+                    setOpcoes(data.map(item => ({ value: item.id, label: item.nome })));
+                } else if (filtroAtivo === 'professor') {
+                    const data = await fetchUsers();
+                    setOpcoes(data.map(item => ({ value: item.id, label: item.nome })));
+                } else {
+                    setOpcoes([]);
+                }
+            } catch (error) {
+                console.error("Erro ao carregar opções:", error);
+                setOpcoes([]);
+            }
+        };
+
+        if (filtroAtivo) {
+            carregarOpcoes();
+        }
+    }, [filtroAtivo]);
+
+    // Carregar blocos ao selecionar uma opção
+    useEffect(() => {
+        const carregarBlocos = async () => {
+            if (filtroAtivo === 'curso' && selecao) {
+                try {
+                    // Exemplo: sempre ano 1, semestre 1, podes ajustar
+                    const blocos = await fetchBlocos(selecao.value, 1, 1);
+                    setGradeBlocos(blocos);
+                } catch (error) {
+                    console.error("Erro ao buscar blocos:", error);
+                    setGradeBlocos([]);
+                }
+            } else {
+                setGradeBlocos([]);
+            }
+        };
+
+        carregarBlocos();
+    }, [selecao, filtroAtivo]);
+
     const handleSemana = (delta) => {
         setSemanaAtual((prev) => prev + delta);
-        // Aqui você pode chamar a API novamente para atualizar gradeBlocos
+        // Podes recarregar blocos de acordo com semana se necessário
     };
 
     const habilitarBotoesSemana = gradeBlocos.length > 1;
@@ -47,22 +103,18 @@ function HomePage() {
                         key={item.id}
                         onClick={() => {
                             if (filtroAtivo === item.id) {
-                                // Se clicar novamente no mesmo ícone, fecha o filtro
                                 setFiltroAtivo(null);
                                 setSelecao(null);
                                 setGradeBlocos([]);
                                 setSemanaAtual(1);
                             } else {
-                                // Caso contrário, ativa o novo filtro
                                 setFiltroAtivo(item.id);
                                 setSelecao(null);
                                 setGradeBlocos([]);
                                 setSemanaAtual(1);
                             }
                         }}
-
-                        className={`text-center p-3 rounded border ${filtroAtivo === item.id ? 'bg-primary text-white' : 'bg-light'
-                            }`}
+                        className={`text-center p-3 rounded border ${filtroAtivo === item.id ? 'bg-primary text-white' : 'bg-light'}`}
                         style={{ cursor: 'pointer', width: '120px' }}
                     >
                         {item.icon}
@@ -71,24 +123,20 @@ function HomePage() {
                 ))}
             </div>
 
-            {/* Select do filtro (aparece após clicar no ícone) */}
+            {/* Select do filtro */}
             {filtroAtivo && (
                 <div className="card p-4 shadow-sm mb-4">
                     <h5 className="fw-bold mb-3">Selecionar {filtroAtivo}</h5>
                     <Select
-                        options={opcoesMock}
+                        options={opcoes}
                         value={selecao}
-                        onChange={(opt) => {
-                            setSelecao(opt);
-                            // Aqui você deve carregar blocos reais da API
-                            setGradeBlocos([]); // ← para teste, vazia
-                        }}
+                        onChange={(opt) => setSelecao(opt)}
                         placeholder={`Selecione um(a) ${filtroAtivo}`}
                     />
                 </div>
             )}
 
-            {/* Botões de navegação de semana (sempre visíveis) */}
+            {/* Botões de semana */}
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <button
                     className="btn btn-outline-secondary"
@@ -98,7 +146,7 @@ function HomePage() {
                     ← Anterior
                 </button>
 
-                <h6 className="fw-bold mb-0">{semanaAtual}</h6>
+                <h6 className="fw-bold mb-0">Semana {semanaAtual}</h6>
 
                 <button
                     className="btn btn-outline-secondary"
@@ -109,7 +157,7 @@ function HomePage() {
                 </button>
             </div>
 
-            {/* Grade horária (sempre visível) */}
+            {/* Grade horária */}
             <DragDropContext onDragEnd={(result) => console.log("Drag ended", result)}>
                 <GradeHorario blocos={gradeBlocos} />
             </DragDropContext>
