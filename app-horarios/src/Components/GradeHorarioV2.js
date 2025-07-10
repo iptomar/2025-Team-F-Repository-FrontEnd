@@ -36,7 +36,7 @@ function GradeHorarioV2({ blocos = [] }) {
       >
         <thead className="table-light">
           <tr>
-            <th style={{ width: "100px" }}>Hora</th>
+            <th style={{ width: "15%" }}>Hora</th>
             {diasSemana.map((dia) => (
               <th key={dia.id} style={{ width: `${100 / diasSemana.length}%` }}>
                 {dia.nome}
